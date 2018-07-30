@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+  jenkins-master-service:
+    build: ./master
+    image: rv_jenkins:0.21
+    container_name: rv-jenkins-master
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    networks:
+      - jenkins_network
+    env_file: ./master/env.list
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - `pwd`/data:/var/jenkins_home
+#    volumes:
+      # Path on the host, relative to the Compose file using SHORT SYNTAX
+#      - ./master/jobs:/var/jenkins_home/jobs
+#  jenkins-slave-service:
+#    build: ./slave
+#    image: rapid_value_jenkins_slave:0.1
+#    container_name: rapidvalue-jenkins-slave
+#    depends_on:
+#      - jenkins-master-service
+#    networks:
+#      - jenkins_network
+#    command: -url http://localhost:8080 secret123 agent123
+
+  sonarqube:
+    image: sonarqube:lts    
+    restart: always
+    container_name: rv-sonarqube
+    depends_on:
+      - db
+    networks:
+     - jenkins_network
+    ports:
+     - "9000:9000"
+     - "3306:3306"
+    environment:
+     - SONARQUBE_JDBC_USERNAME=sonar
+     - SONARQUBE_JDBC_PASSWORD=sonar
+     - SONARQUBE_JDBC_URL=jdbc:mysql://db:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true
+
+  db:
+    image: mysql:5.7
+#    entrypoint: ['docker-entrypoint.sh', '--default-authentication-plugin=mysql_native_password']
+    restart: always
+    container_name: rv-sonarqube-mysql
+    networks:
+      - jenkins_network
+    environment:
+     - MYSQL_ROOT_PASSWORD=sonar
+     - MYSQL_DATABASE=sonar
+     - MYSQL_USER=sonar
+     - MYSQL_PASSWORD=sonar
+     
+networks:
+  jenkins_network:
