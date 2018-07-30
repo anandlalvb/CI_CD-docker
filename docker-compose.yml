@@ -13,7 +13,7 @@ services:
     env_file: ./master/env.list
     volumes:
       - jenkins_home:/var/jenkins_home
-      - `pwd`/data:/var/jenkins_home
+#      - ./master/data:/var/jenkins_home
 #    volumes:
       # Path on the host, relative to the Compose file using SHORT SYNTAX
 #      - ./master/jobs:/var/jenkins_home/jobs
@@ -58,3 +58,5 @@ services:
      
 networks:
   jenkins_network:
+volumes:
+   jenkins_home:
